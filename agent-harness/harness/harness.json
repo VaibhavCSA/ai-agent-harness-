@@ -1,0 +1,151 @@
+{
+  "_comment": "Single source of truth for the six layers. scripts/harness.py enforces this file.",
+  "tool_layer": {
+    "allowed_tools": [
+      "read",
+      "search",
+      "edit",
+      "terminal",
+      "workiq",
+      "web"
+    ],
+    "notes": "Agents may READ/SEARCH anything in the repo. EDIT only inside paths listed under permission_layer.writable_paths."
+  },
+  "context_layer": {
+    "always_load": [
+      "AGENTS.md",
+      "artifacts/01-problem.md",
+      "memory/decisions.md",
+      "memory/learnings.md"
+    ],
+    "per_step_load": "the previous artifact in the chain + the skill file for this step"
+  },
+  "execution_layer": {
+    "steps": [
+      {
+        "n": 1,
+        "file": "01-problem.md",
+        "role": "human",
+        "skill": null
+      },
+      {
+        "n": 2,
+        "file": "02-spec.md",
+        "role": "analyst",
+        "skill": "problem-refinement"
+      },
+      {
+        "n": 3,
+        "file": "03-spec-analysis.md",
+        "role": "analyst",
+        "skill": "spec-analysis"
+      },
+      {
+        "n": 4,
+        "file": "04-architecture-review.md",
+        "role": "architect",
+        "skill": "architecture-review"
+      },
+      {
+        "n": 5,
+        "file": "05-plan.md",
+        "role": "planner",
+        "skill": "planning-decomposition"
+      },
+      {
+        "n": 6,
+        "file": "06-tasks.md",
+        "role": "planner",
+        "skill": "planning-decomposition",
+        "note": "after 06 is APPROVED the coder role implements tasks test-first, then 07"
+      },
+      {
+        "n": 7,
+        "file": "07-evaluation.md",
+        "role": "evaluator",
+        "skill": "evaluation-design"
+      },
+      {
+        "n": 8,
+        "file": "08-governance.md",
+        "role": "governor",
+        "skill": "governance-checks"
+      }
+    ],
+    "checkpoint_rule": "Step N may only leave DRAFT when step N-1 is APPROVED by a human.",
+    "roles": {
+      "analyst": "02,03",
+      "architect": "04",
+      "planner": "05,06",
+      "coder": "src/ tests/ after 06",
+      "evaluator": "07",
+      "governor": "08",
+      "retrospective": "after PASS"
+    }
+  },
+  "permission_layer": {
+    "writable_paths": [
+      "artifacts/",
+      "src/",
+      "tests/",
+      "memory/"
+    ],
+    "deny_patterns": [
+      "rm\\s+-rf",
+      "git\\s+push\\s+.*--force",
+      "git\\s+reset\\s+--hard",
+      "az\\s+group\\s+delete",
+      "az\\s+.*\\s+delete\\b",
+      "terraform\\s+destroy",
+      "DROP\\s+(TABLE|DATABASE)",
+      "curl[^|]*\\|\\s*(ba)?sh",
+      "chmod\\s+777"
+    ],
+    "approval_patterns": [
+      "git\\s+push",
+      "az\\s+deployment",
+      "az\\s+.*\\s+create\\b",
+      "terraform\\s+apply",
+      "azd\\s+(up|deploy|provision)",
+      "kubectl\\s+apply",
+      "func\\s+azure\\s+functionapp\\s+publish",
+      "npm\\s+publish",
+      "pip\\s+install"
+    ],
+    "human_approvers": [
+      "FENIX"
+    ],
+    "human_only_commands": [
+      "approve",
+      "rebaseline",
+      "promote"
+    ]
+  },
+  "memory_layer": {
+    "decisions": "memory/decisions.md",
+    "feedback_log": "memory/feedback.jsonl",
+    "learnings": "memory/learnings.md",
+    "scores": "memory/scores.jsonl",
+    "test_baseline": "memory/test-baseline.json",
+    "candidates": "memory/candidates.jsonl",
+    "materialized_to": ".github/instructions/learnings.instructions.md",
+    "promote_min_sources": 2
+  },
+  "loop_layer": {
+    "max_iterations_per_task": 3,
+    "on_limit": "ESCALATE",
+    "verdicts": [
+      "PASS",
+      "FAIL",
+      "PARTIAL"
+    ],
+    "verdict_points": {
+      "PASS": 10,
+      "PARTIAL": 5,
+      "FAIL": 0
+    },
+    "pass_threshold": 8.0,
+    "alternate_approach_after_repeats": 2,
+    "plateau_rounds": 2
+  }
+}
