@@ -1,8 +1,8 @@
 ---
-status: DRAFT
+status: APPROVED
 author: AMA-Cohort-2-brief
-approved_by:
-approved_on:
+approved_by: FENIX
+approved_on: 2026-10-23
 ---
 # 01 · Problem: AI Coding Agent Harness
 
