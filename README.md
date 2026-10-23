@@ -16,15 +16,15 @@ from the lab slide into files an agent must follow and a CLI that enforces them.
 ## Run the lab
 ```bash
 python scripts/harness.py status                 # where are we? (shows a GATE error until you approve 01)
-python scripts/harness.py approve 1 --by FENIX    # human signs off the problem
+python scripts/harness.py approve 1 --by Vaibhav    # human signs off the problem
 #   review artifacts/02-spec.md (already drafted), edit if needed, then:
-python scripts/harness.py approve 2 --by FENIX
+python scripts/harness.py approve 2 --by Vaibhav
 #   ask your agent: "Follow AGENTS.md and complete the next step"
 python scripts/harness.py guard "az group delete -n rg-demo"   # DENY
 python scripts/harness.py loop --task T-01 --verdict FAIL --criteria AC-02 --note "gate not enforced"
 python scripts/harness.py score                  # weighted 0-10 score, blockers, test-integrity, regression, plateau
 python scripts/harness.py learn --key k --text "rule" --source feedback:T-01   # agent proposes a learning
-python scripts/harness.py promote --key k --by FENIX                           # human approves (needs 2+ sources)
+python scripts/harness.py promote --key k --by Vaibhav                           # human approves (needs 2+ sources)
 python scripts/harness.py check                  # the whole chain, CI-ready (non-zero on any problem)
 python -m unittest discover -s tests -v          # 14 tests covering AC-01..AC-15
 ```

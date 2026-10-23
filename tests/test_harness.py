@@ -33,7 +33,7 @@ class HarnessTest(unittest.TestCase):
 
     def approve_through(self, n):
         for i in range(1, n + 1):
-            r = self.run_h("approve", str(i), "--by", "FENIX")
+            r = self.run_h("approve", str(i), "--by", "Vaibhav")
             self.assertEqual(r.returncode, 0, r.stdout)
 
     def spec_acs(self):
@@ -88,10 +88,10 @@ class HarnessTest(unittest.TestCase):
     # AC-06
     def test_ac06_only_humans_approve(self):
         self.assertIn("DENY", self.run_h("approve", "1", "--by", "analyst-agent").stdout)
-        self.assertIn("DENY", self.run_h("approve", "3", "--by", "FENIX").stdout)  # template / out of order
-        self.fill("01-problem.md", "problem", author="FENIX")
-        self.assertIn("own artifact", self.run_h("approve", "1", "--by", "FENIX").stdout)
-        self.assertEqual(self.run_h("guard", "python scripts/harness.py approve 2 --by FENIX").returncode, 2)
+        self.assertIn("DENY", self.run_h("approve", "3", "--by", "Vaibhav").stdout)  # template / out of order
+        self.fill("01-problem.md", "problem", author="Vaibhav")
+        self.assertIn("own artifact", self.run_h("approve", "1", "--by", "Vaibhav").stdout)
+        self.assertEqual(self.run_h("guard", "python scripts/harness.py approve 2 --by Vaibhav").returncode, 2)
 
     # AC-07
     def test_ac07_guard_classifies_commands(self):
@@ -127,11 +127,11 @@ class HarnessTest(unittest.TestCase):
         self.approve_through(2)
         for name in ["03-spec-analysis.md", "04-architecture-review.md", "05-plan.md"]:
             self.fill(name, "done")
-            self.run_h("approve", name[1], "--by", "FENIX")
+            self.run_h("approve", name[1], "--by", "Vaibhav")
         acs = self.spec_acs()
         self.fill("06-tasks.md", "| Task | Description | Owner | Criteria |\n|---|---|---|---|\n"
                                  f"| T-01 | all | planner | {', '.join(acs)} |")
-        self.run_h("approve", "6", "--by", "FENIX")
+        self.run_h("approve", "6", "--by", "Vaibhav")
         rows = "\n".join(f"| {a} | T-01 | tests/test_harness.py | PASS |" for a in acs)
         self.fill("07-evaluation.md", "| Criterion | Task | Evidence | Verdict |\n|---|---|---|---|\n" + rows,
                   author="evaluator-agent")
@@ -159,8 +159,8 @@ class HarnessTest(unittest.TestCase):
         r = self.run_h("score")
         self.assertIn("TEST-INTEGRITY", r.stdout); self.assertIn("VERDICT: ITERATE", r.stdout)
         self.assertIn("DENY", self.run_h("rebaseline", "--by", "coder-agent", "--reason", "x").stdout)
-        self.assertEqual(self.run_h("guard", "python scripts/harness.py rebaseline --by FENIX --reason x").returncode, 2)
-        self.assertEqual(self.run_h("rebaseline", "--by", "FENIX", "--reason", "merged duplicate tests").returncode, 0)
+        self.assertEqual(self.run_h("guard", "python scripts/harness.py rebaseline --by Vaibhav --reason x").returncode, 2)
+        self.assertEqual(self.run_h("rebaseline", "--by", "Vaibhav", "--reason", "merged duplicate tests").returncode, 0)
         self.assertIn("VERDICT: PASS", self.run_h("score").stdout)
         self.assertIn("merged duplicate tests", (self.root / "memory" / "decisions.md").read_text())
 
@@ -176,10 +176,10 @@ class HarnessTest(unittest.TestCase):
     def test_ac14_learning_is_evidence_gated_and_human_promoted(self):
         args = ["learn", "--key", "no-mocks-for-guard", "--text", "Test the guard via subprocess, not mocks"]
         self.assertIn("needs more evidence", self.run_h(*args, "--source", "feedback:T-03").stdout)
-        self.assertIn("DENY", self.run_h("promote", "--key", "no-mocks-for-guard", "--by", "FENIX").stdout)
+        self.assertIn("DENY", self.run_h("promote", "--key", "no-mocks-for-guard", "--by", "Vaibhav").stdout)
         self.assertIn("PROMOTE-READY", self.run_h(*args, "--source", "review:PR-12").stdout)
         self.assertIn("DENY", self.run_h("promote", "--key", "no-mocks-for-guard", "--by", "evaluator-agent").stdout)
-        self.assertEqual(self.run_h("promote", "--key", "no-mocks-for-guard", "--by", "FENIX").returncode, 0)
+        self.assertEqual(self.run_h("promote", "--key", "no-mocks-for-guard", "--by", "Vaibhav").returncode, 0)
         inst = (self.root / ".github" / "instructions" / "learnings.instructions.md").read_text()
         self.assertIn("applyTo", inst); self.assertIn("subprocess, not mocks", inst)
 
