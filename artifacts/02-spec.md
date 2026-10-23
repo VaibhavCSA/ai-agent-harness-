@@ -1,8 +1,8 @@
 ---
-status: DRAFT
+status: APPROVED
 author: analyst-agent
-approved_by:
-approved_on:
+approved_by: Vaibhav
+approved_on: 2026-10-23
 ---
 # 02 · Spec: AI Coding Agent Harness
 
